@@ -51,7 +51,7 @@ Projekt zamierzam podzielić na 5 części:
 }
 ```
 
-W zamian uzyskuje ticket z informacją o parametrach transferu pliku:
+W zamian uzyskuje ticket z informacją o parametrach transferu pliku (`201 Created`):
 
 ```json
 {

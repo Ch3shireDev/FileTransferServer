@@ -1,41 +1,33 @@
 package models;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class HttpHeader {
-    private final Map<String, String> values;
-    private final String method;
-    private final String path;
+public abstract class HttpHeader {
+
     private final String version;
 
-    public HttpHeader(String method, String path, String version, Map<String, String> values) {
-        this.method = method;
-        this.path = path;
-        this.version = version;
+    protected Map<String, String> values;
+
+    protected HttpHeader() {
+        this.values = new HashMap<>();
+        this.version = "HTTP/1.1";
+    }
+
+    protected HttpHeader(Map<String, String> values) {
         this.values = values;
+        this.version = "HTTP/1.1";
     }
 
-    public Map<String, String> getValues() {
-        return values;
+    protected HttpHeader(Map<String, String> values, String version) {
+        this.values = values;
+        this.version = version;
     }
 
-    public HttpMethod getMethod() throws Exception {
-        switch (method) {
-            case "GET":
-                return HttpMethod.GET;
-            case "POST":
-                return HttpMethod.POST;
-            default:
-                throw new Exception(String.format("Method not known: %s", method));
-        }
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public String getVersion() {
-        return version;
+    protected HttpHeader(String version) {
+        this.version = version;
+        this.values = new HashMap<>();
     }
 
     public int getContentLength() {
@@ -47,5 +39,25 @@ public class HttpHeader {
         if (!values.containsKey(key)) return "";
         return values.get(key);
     }
-}
 
+    public void setValue(String key, int value) {
+        setValue(key, String.valueOf(value));
+    }
+
+    public void setValue(String key, String value) {
+        if (values.containsKey(key)) values.replace(key, value);
+        else values.put(key, value);
+    }
+
+    public Set<String> getKeys() {
+        return values.keySet();
+    }
+
+    public Map<String, String> getValues() {
+        return values;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+}

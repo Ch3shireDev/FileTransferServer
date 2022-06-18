@@ -1,8 +1,7 @@
 import helpers.JsonConverterHelpers;
 import mockups.MockSocketService;
 import mockups.MockTicketService;
-import models.Fileinfo;
-import models.Ticket;
+import models.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,21 +35,24 @@ class HttpServerTest {
      */
     @Test
     void requestTicketTest() throws IOException {
-
         Assertions.assertEquals(0, ticketService.tickets.size());
 
-        serverSocket.sendHeaderLine("POST /tickets HTTP/1.1\r\n");
-        serverSocket.sendHeaderLine("Content-Length: 38\r\n");
-        serverSocket.sendHeaderLine("Content-Type: application/json\r\n");
-        serverSocket.sendHeaderLine("\r\n");
-        serverSocket.sendBodyLine("{\"filename\":\"a.png\",\"filesize\":213123}");
+        var fileinfo = new Fileinfo("a.png", 213123);
+        var json = JsonConverterHelpers.getJson(fileinfo);
 
+        var request = new HttpRequest("POST", "/tickets", json);
+
+        serverSocket.sendRequestHeader(request.getHeader());
+        serverSocket.sendBody(json);
         server.run();
 
-        String header = serverSocket.receiveHeaderLine();
+        HttpResponseHeader responseHeader = serverSocket.receiveResponseHeader();
+
+        Assertions.assertEquals(201, responseHeader.getCode());
+        Assertions.assertEquals("Created", responseHeader.getMessage());
+
         String body = serverSocket.receiveBodyString();
 
-        Assertions.assertEquals("HTTP/1.1 201 Created\r\n", header);
         Ticket ticket1 = JsonConverterHelpers.getJsonAsTicket(body);
 
         Assertions.assertEquals("a.png", ticket1.getFilename());
@@ -61,7 +63,6 @@ class HttpServerTest {
 
         Assertions.assertEquals("a.png", ticket2.getFilename());
         Assertions.assertEquals(213123, ticket2.getFilesize());
-
     }
 
     /**
@@ -76,21 +77,19 @@ class HttpServerTest {
     public void sendFileTest() throws IOException {
         ticketService.tickets.add(new Ticket("/123", new Fileinfo("a.png", 8)));
 
-        serverSocket.sendHeaderLine("POST /tickets/123 HTTP/1.1\r\n");
-        serverSocket.sendHeaderLine("Content-Length: 8\r\n");
-        serverSocket.sendHeaderLine("Content-Type: application/json\r\n");
-        serverSocket.sendHeaderLine("\r\n");
-
         byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
+        var request = new HttpRequest("POST", "/tickets/123", bytes);
 
-        serverSocket.sendBodyLine(bytes);
+        serverSocket.sendRequestHeader(request.getHeader());
+        serverSocket.sendBody(request.getBody());
 
         server.run();
 
-        String header = serverSocket.receiveHeaderLine();
-        byte[] body = serverSocket.receiveBodyBytes();
+        HttpResponseHeader header = serverSocket.receiveResponseHeader();
+        byte[] body = serverSocket.receiveResponseBodyBytes();
 
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\n", header);
+        Assertions.assertEquals(200, header.getCode());
+        Assertions.assertEquals("OK", header.getMessage());
         Assertions.assertEquals(0, body.length);
     }
 
@@ -110,18 +109,58 @@ class HttpServerTest {
         var bytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
 
         ticketService.sendDataToTicket("/tickets/123", bytes);
-        serverSocket.sendHeaderLine("GET /tickets/123 HTTP/1.1\r\n");
-        serverSocket.sendHeaderLine("\r\n");
+
+        var request = new HttpRequest("GET", "/tickets/123");
+        serverSocket.sendRequestHeader(request.getHeader());
 
         server.run();
 
-        String header = serverSocket.receiveHeaderLine();
-        byte[] body = serverSocket.receiveBodyBytes();
+        HttpResponseHeader header = serverSocket.receiveResponseHeader();
+        byte[] body = serverSocket.receiveResponseBodyBytes();
 
-        Assertions.assertEquals("HTTP/1.1 200 OK\r\n", header);
+        Assertions.assertEquals(200, header.getCode());
+        Assertions.assertEquals("OK", header.getMessage());
         Assertions.assertEquals(8, body.length);
         Assertions.assertArrayEquals(bytes, body);
+    }
 
+    /**
+     * Powinna być możliwość wysyłania pliku na raty.
+     */
+    @Test
+    public void receivePartsOfAFile() throws IOException {
+
+        var fileinfo = new Fileinfo("a.png", 16);
+        var json = JsonConverterHelpers.getJson(fileinfo);
+        var requestForTicket = new HttpRequest("POST", "/tickets", json);
+
+        serverSocket.sendRequestHeader(requestForTicket.getHeader());
+        serverSocket.sendBody(requestForTicket.getBody());
+
+        server.run();
+
+        HttpResponseHeader header = serverSocket.receiveResponseHeader();
+        String body = serverSocket.receiveBodyString();
+
+        Ticket ticket = JsonConverterHelpers.getJsonAsTicket(body);
+        String url = ticket.getUrl();
+
+        var request2 = new HttpRequest("POST", url, 8);
+
+        serverSocket.sendRequestHeader(request2.getHeader());
+        serverSocket.sendBody(new byte[]{1, 2, 3, 4});
+        serverSocket.sendBody(new byte[]{5, 6, 7, 8});
+
+        server.run();
+
+        serverSocket.sendRequestHeader(new HttpRequestHeader("GET", url));
+
+        server.run();
+
+        serverSocket.receiveResponseHeader();
+        var responseBytes = serverSocket.receiveResponseBodyBytes();
+
+        Assertions.assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8}, responseBytes);
     }
 
 }

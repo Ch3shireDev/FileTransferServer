@@ -26,7 +26,7 @@ Projekt zamierzam podzielić na 5 części:
 ## Co jest do zrobienia
 
 1. [x] Stworzyć minimalną wersję serwera który odbiera dowolne informacje od nadawcy i zwraca ticket - numer z użyciem którego należy zgłosić się po odbiór przesłanej informacji.
-2. [ ] Dodać funkcję odbierania przechowywanej informacji po wysłaniu ticketa.
+2. [x] Dodać funkcję odbierania przechowywanej informacji po wysłaniu ticketa.
 3. [ ] Przekształcić odbieranie informacji tak, aby po przesłaniu ticketa serwer wysyłał informacje dalej - i nie kończył aż do momentu, gdy ticket nie zostanie odebrany.
 
 ## Bieżąca forma protokołu.
@@ -53,12 +53,10 @@ W zamian uzyskuje ticket z informacją o parametrach transferu pliku (`201 Creat
 
 ```json
 {
-  "ticket": {
-    "id": 123,
-    "filename": "a.png",
-    "filesize": 213123,
-    "url": "/123"
-  }
+  "id": 123,
+  "filename": "a.png",
+  "filesize": 213123,
+  "url": "/123"
 }
 ```
 

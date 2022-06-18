@@ -1,26 +1,28 @@
 package sockets;
 
+import helpers.HttpHeaderConverter;
+import models.HttpRequestHeader;
+import models.HttpResponseHeader;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class SocketService implements ISocketService {
 
     private final ServerSocket serverSocket;
-    private final int port;
-    private Socket clientSocket;
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
     public SocketService(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
-        this.port = port;
     }
 
     @Override
     public void accept() throws IOException {
-        this.clientSocket = serverSocket.accept();
+        Socket clientSocket = serverSocket.accept();
         InputStream inputStream = clientSocket.getInputStream();
         this.dataInputStream = new DataInputStream(inputStream);
         OutputStream outputStream = clientSocket.getOutputStream();
@@ -51,6 +53,23 @@ public class SocketService implements ISocketService {
     public void close() throws IOException {
         dataOutputStream.close();
         dataInputStream.close();
-        //serverSocket.close();
+    }
+
+    @Override
+    public void sendRequestHeader(HttpRequestHeader request) throws IOException {
+        var lines = HttpHeaderConverter.toRequestHeaderLines(request);
+        for (String line:lines){
+            writeLine(line);
+        }
+    }
+
+    @Override
+    public void sendResponseHeader(HttpResponseHeader header) throws IOException {
+
+    }
+
+    @Override
+    public HttpResponseHeader receiveResponseHeader() {
+        return null;
     }
 }

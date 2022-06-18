@@ -1,6 +1,17 @@
 package models;
 
 public class Fileinfo {
+    private String filename;
+    private Integer filesize;
+
+    public Fileinfo() {
+    }
+
+    public Fileinfo(String filename, Integer filesize) {
+        this.filename = filename;
+        this.filesize = filesize;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -14,17 +25,6 @@ public class Fileinfo {
     }
 
     public void setFilesize(Integer filesize) {
-        this.filesize = filesize;
-    }
-
-    private String filename;
-    private Integer filesize;
-
-    public Fileinfo() {
-    }
-
-    public Fileinfo(String filename, Integer filesize) {
-        this.filename = filename;
         this.filesize = filesize;
     }
 }

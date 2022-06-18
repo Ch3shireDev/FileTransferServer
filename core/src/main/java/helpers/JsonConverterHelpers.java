@@ -10,6 +10,10 @@ import java.io.IOException;
 public class JsonConverterHelpers {
     static ObjectMapper mapper = new ObjectMapper();
 
+    public static String getJson(Object value) throws JsonProcessingException {
+        return mapper.writeValueAsString(value);
+    }
+
     public static String getTicketAsJson(Ticket ticket) throws JsonProcessingException {
         return mapper.writeValueAsString(ticket);
     }
@@ -21,5 +25,9 @@ public class JsonConverterHelpers {
 
     public static Fileinfo getFileinfoFromJson(byte[] buffer) throws IOException {
         return mapper.readValue(buffer, Fileinfo.class);
+    }
+
+    public <T> T getObject(String json, Class<T> valueType) throws JsonProcessingException {
+        return mapper.readValue(json, valueType);
     }
 }

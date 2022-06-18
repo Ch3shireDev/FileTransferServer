@@ -1,10 +1,15 @@
 package mockups;
 
+import helpers.HttpHeaderConverter;
+import models.HttpRequestHeader;
+import models.HttpResponseHeader;
 import sockets.ISocketService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 public class MockSocketService implements ISocketService {
 
@@ -21,7 +26,13 @@ public class MockSocketService implements ISocketService {
         requestHeaderLines.add(line);
     }
 
-    public String receiveHeaderLine() {
+    @Override
+    public void writeLine(String line) throws IOException {
+        responseHeaderLines.add(line);
+    }
+
+
+    private String receiveHeaderLine() {
         return responseHeaderLines.pop();
     }
 
@@ -43,11 +54,6 @@ public class MockSocketService implements ISocketService {
     }
 
     @Override
-    public void writeLine(String line) throws IOException {
-        responseHeaderLines.add(line);
-    }
-
-    @Override
     public void writeBytes(byte[] bytes) throws IOException {
         for (var i = 0; i < bytes.length; i++) {
             responseBodyBytes.add(bytes[i]);
@@ -59,26 +65,56 @@ public class MockSocketService implements ISocketService {
 
     }
 
-    public void sendBodyLine(String line) {
-        sendBodyLine(line.getBytes(StandardCharsets.UTF_8));
+    @Override
+    public void sendRequestHeader(HttpRequestHeader header) {
+        var lines = HttpHeaderConverter.toRequestHeaderLines(header);
+
+        for (var line : lines) {
+            sendHeaderLine(line);
+        }
+
     }
 
-    public void sendBodyLine(byte[] bytes) {
+    @Override
+    public void sendResponseHeader(HttpResponseHeader header) throws IOException {
+        var lines = HttpHeaderConverter.toResponseHeaderLines(header);
+        for(var line:lines){
+            writeLine(line);
+        }
+    }
+
+    @Override
+    public HttpResponseHeader receiveResponseHeader() {
+        List<String> headerLines = new ArrayList<>();
+        String line;
+        while(!(line = receiveHeaderLine()).isBlank()){
+            headerLines.add(line);
+        }
+
+        return HttpHeaderConverter.getResponseHeader(headerLines);
+    }
+
+    public void sendBody(String line) {
+        sendBody(line.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public void sendBody(byte[] bytes) {
         for (var b : bytes) {
             requestBodyBytes.add(b);
         }
     }
 
     public String receiveBodyString() {
-        byte[] array = receiveBodyBytes();
+        byte[] array = receiveResponseBodyBytes();
         return new String(array);
     }
 
-    public byte[] receiveBodyBytes() {
+    public byte[] receiveResponseBodyBytes() {
         Byte[] bytes = responseBodyBytes.toArray(Byte[]::new);
         if (bytes.length == 0) return new byte[0];
         byte[] array = new byte[bytes.length];
         for (var i = 0; i < bytes.length; i++) array[i] = bytes[i];
+        responseBodyBytes.clear();
         return array;
     }
 }

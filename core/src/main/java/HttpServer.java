@@ -1,18 +1,18 @@
+import helpers.HttpHeaderConverter;
 import helpers.JsonConverterHelpers;
 import models.Fileinfo;
-import models.HttpHeader;
-import models.HttpMethod;
+import models.HttpRequestHeader;
+import models.HttpResponse;
 import models.Ticket;
 import sockets.ISocketService;
 import tickets.ITicketService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class HttpServer {
 
@@ -29,20 +29,29 @@ public class HttpServer {
 
     public void run() throws IOException {
         serverSocket.accept();
-        HttpHeader header = getHttpHeader();
+        HttpRequestHeader header = getHttpHeader();
         sendResponse(header);
         serverSocket.close();
     }
 
-    private void sendResponse(HttpHeader header) throws IOException {
+    HttpRequestHeader getHttpHeader() throws IOException {
+        List<String> lines = new ArrayList<>();
+        String line;
+        while (!(line = serverSocket.readLine()).isBlank()) {
+            lines.add(line);
+        }
+        return HttpHeaderConverter.getHttpHeader(lines);
+    }
+
+    private void sendResponse(HttpRequestHeader header) throws IOException {
         try {
-            if (header.getMethod() == HttpMethod.POST && Objects.equals(header.getPath(), "/tickets")) {
+            if (header.getMethod().equals("POST") && header.getPath().equals("/tickets")) {
                 ticketRequest(header);
             }
-            else if (header.getMethod() == HttpMethod.POST && header.getPath().matches("/tickets/[\\w\\d]+")) {
+            else if (header.getMethod().equals("POST") && header.getPath().matches("/tickets/[\\w\\d]+")) {
                 sendData(header);
             }
-            else if (header.getMethod() == HttpMethod.GET && header.getPath().matches("/tickets/[\\w\\d]+")) {
+            else if (header.getMethod().equals("GET") && header.getPath().matches("/tickets/[\\w\\d]+")) {
                 receiveData(header);
             }
         }
@@ -51,7 +60,7 @@ public class HttpServer {
         }
     }
 
-    private void receiveData(HttpHeader header) throws IOException {
+    private void receiveData(HttpRequestHeader header) throws IOException {
         var ticketJson = header.getValue("Ticket");
         var url = header.getPath();
         Ticket ticket = ticketService.getTicket(url);
@@ -59,7 +68,7 @@ public class HttpServer {
         sendResponseFile(200, "OK", body, ticket.getFilename());
     }
 
-    private void ticketRequest(HttpHeader header) throws IOException {
+    private void ticketRequest(HttpRequestHeader header) throws IOException {
         int contentLength = header.getContentLength();
         byte[] buffer = new byte[contentLength];
         serverSocket.readBytes(buffer);
@@ -72,7 +81,7 @@ public class HttpServer {
         sendResponse(201, "Created", body);
     }
 
-    private void sendData(HttpHeader header) throws IOException {
+    private void sendData(HttpRequestHeader header) throws IOException {
         int contentLength = header.getContentLength();
         byte[] buffer = new byte[contentLength];
         serverSocket.readBytes(buffer);
@@ -80,31 +89,9 @@ public class HttpServer {
         sendResponse(200, "OK");
     }
 
-    private HttpHeader getHttpHeader() throws IOException {
-        String line = serverSocket.readLine();
-        if (line == null) throw new IOException("Błąd pobierania danych.");
-
-        String[] parts = line.split("\s");
-
-        String method = parts[0];
-        String path = parts[1];
-        String version = parts[2];
-
-        Map<String, String> values = new HashMap<>();
-        Pattern pattern = Pattern.compile("(.*): (.*)");
-        while (!(line = serverSocket.readLine()).isBlank()) {
-            Matcher result = pattern.matcher(line);
-            if (!result.find()) break;
-            var key = result.group(1);
-            var value = result.group(2);
-            values.put(key, value);
-        }
-
-        return new HttpHeader(method, path, version, values);
-    }
-
     private void sendResponse(int httpCode, String httpResponse) throws IOException {
-        sendResponse(httpCode, httpResponse, new byte[0]);
+        var response = new HttpResponse(httpCode, httpResponse);
+        serverSocket.sendResponseHeader(response.getHeader());
     }
 
     private void sendResponse(int httpCode, String httpResponse, byte[] body) throws IOException {

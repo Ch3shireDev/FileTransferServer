@@ -44,10 +44,8 @@ Projekt zamierzam podzielić na 5 części:
 
 ```json
 {
-  "fileinfo": {
-    "filename": "a.png",
-    "filesize": 213123
-  }
+  "filename": "a.png",
+  "filesize": 213123
 }
 ```
 
@@ -64,8 +62,8 @@ W zamian uzyskuje ticket z informacją o parametrach transferu pliku (`201 Creat
 }
 ```
 
-2. Alicja łączy się z Charlim by wysłać plik poprzez zapytanie HTTP `POST /123` (url pliku z ticketa). W ciele zapytania HTTP umieszcza binaria pliku. Połączenie będzie trwało tak długo, aż nie zostanie przesłany cały plik. Na koniec Alicja dostanie odpowiedź z serwera. Jeśli wszystko poszło ok, będzie to `201 Created`. Jeśli coś poszło nie tak, będzie to `400 Bad Request`.
+2. Alicja łączy się z Charliem by wysłać plik poprzez zapytanie HTTP `POST /123` (url pliku z ticketa). W ciele zapytania HTTP umieszcza binaria pliku. Połączenie będzie trwało tak długo, aż nie zostanie przesłany cały plik. Na koniec Alicja dostanie odpowiedź z serwera. Jeśli wszystko poszło ok, będzie to `200 OK`. Jeśli coś poszło nie tak, będzie to `400 Bad Request`.
 
 ### Doświadczenie po stronie Boba
 
-1. Bob łączy się z Charlim by odebrać od niego plik wskazany przez Alicję. Wysyła do Charliego zapytanie HTTP `GET /123`. Jeśli faktycznie istnieje oczekujący na niego plik od Alicji, otrzymuje wiadomość zwrotną `200 OK` wraz z nagłówkiem informującym o nazwie pliku oraz binariami tego pliku. Jeśli coś pójdzie nie tak, Bob otrzymuje wiadomość `400 Bad Request`.
+1. Bob łączy się z Charliem by odebrać od niego plik wskazany przez Alicję. Wysyła do Charliego zapytanie HTTP `GET /123`. Jeśli faktycznie istnieje oczekujący na niego plik od Alicji, otrzymuje wiadomość zwrotną `200 OK` wraz z nagłówkiem informującym o nazwie pliku oraz binariami tego pliku. Jeśli coś pójdzie nie tak, Bob otrzymuje wiadomość `400 Bad Request`.

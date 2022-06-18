@@ -1,13 +1,11 @@
 package sockets;
 
-import sockets.IServerSocket;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class DataServerSocket implements IServerSocket {
+public class SocketService implements ISocketService {
 
     private final ServerSocket serverSocket;
     private final int port;
@@ -15,7 +13,7 @@ public class DataServerSocket implements IServerSocket {
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
 
-    public DataServerSocket(int port) throws IOException {
+    public SocketService(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.port = port;
     }
@@ -53,6 +51,6 @@ public class DataServerSocket implements IServerSocket {
     public void close() throws IOException {
         dataOutputStream.close();
         dataInputStream.close();
-        serverSocket.close();
+        //serverSocket.close();
     }
 }

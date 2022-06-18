@@ -1,7 +1,6 @@
 package models;
 
 public class Ticket {
-    Integer number;
     private String filename;
     private Integer filesize;
     private String url;
@@ -9,19 +8,20 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(Integer number, String filename, Integer filesize, String url) {
-        this.number = number;
+    public Ticket(String url, String filename, Integer filesize) {
         this.filename = filename;
         this.filesize = filesize;
         this.url = url;
     }
 
-    public Integer getNumber() {
-        return number;
+    public Ticket(String url, Fileinfo fileinfo) {
+        this.filename = fileinfo.getFilename();
+        this.filesize = fileinfo.getFilesize();
+        this.url = url;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
+    public Ticket(String url) {
+        this.url = url;
     }
 
     public String getFilename() {

@@ -2,7 +2,7 @@ package sockets;
 
 import java.io.IOException;
 
-public interface IServerSocket {
+public interface ISocketService {
     public void accept() throws IOException;
 
     public String readLine() throws IOException;

@@ -1,12 +1,12 @@
 package mockups;
 
-import sockets.IServerSocket;
+import sockets.ISocketService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 
-public class MockServerSocket implements IServerSocket {
+public class MockSocketService implements ISocketService {
 
     LinkedList<String> requestHeaderLines = new LinkedList<>();
     LinkedList<String> responseHeaderLines = new LinkedList<>();
@@ -14,7 +14,7 @@ public class MockServerSocket implements IServerSocket {
     LinkedList<Byte> requestBodyBytes = new LinkedList<Byte>();
     LinkedList<Byte> responseBodyBytes = new LinkedList<Byte>();
 
-    public MockServerSocket() {
+    public MockSocketService() {
     }
 
     public void sendHeaderLine(String line) {
@@ -60,16 +60,25 @@ public class MockServerSocket implements IServerSocket {
     }
 
     public void sendBodyLine(String line) {
-        var bytes = line.getBytes(StandardCharsets.UTF_8);
+        sendBodyLine(line.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public void sendBodyLine(byte[] bytes) {
         for (var b : bytes) {
             requestBodyBytes.add(b);
         }
     }
 
-    public String receiveBody() {
+    public String receiveBodyString() {
+        byte[] array = receiveBodyBytes();
+        return new String(array);
+    }
+
+    public byte[] receiveBodyBytes() {
         Byte[] bytes = responseBodyBytes.toArray(Byte[]::new);
+        if (bytes.length == 0) return new byte[0];
         byte[] array = new byte[bytes.length];
         for (var i = 0; i < bytes.length; i++) array[i] = bytes[i];
-        return new String(array);
+        return array;
     }
 }

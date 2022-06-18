@@ -1,4 +1,5 @@
-import sockets.DataServerSocket;
+import sockets.SocketService;
+import tickets.TicketService;
 
 import java.io.IOException;
 
@@ -7,8 +8,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         int port = 80;
-        DataServerSocket socket = new DataServerSocket(port);
-        HttpServer server = new HttpServer(socket);
+        SocketService socketService = new SocketService(port);
+        TicketService ticketService = new TicketService();
+        HttpServer server = new HttpServer(socketService, ticketService);
         while (true) {
             try {
                 server.run();
@@ -17,9 +19,6 @@ public class Main {
                 System.err.println(e.getMessage());
             }
         }
-
     }
-
-
 }
 

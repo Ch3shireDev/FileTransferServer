@@ -37,7 +37,7 @@ public class Configuration {
     }
 
     public String getFileToSend() {
-        return fileToSend;
+        return fileToSend.replaceAll("(^['\"]|[\"']$)", "");
     }
 
     public void setFileToSend(String fileToSend) {

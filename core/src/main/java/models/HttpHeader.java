@@ -3,6 +3,8 @@ package models;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class HttpHeader {
 
@@ -35,6 +37,14 @@ public abstract class HttpHeader {
         return Integer.parseInt(contentLength);
     }
 
+    public String getFilename() throws Exception {
+        String contentDisposition = values.getOrDefault("Content-Disposition", "");
+        Pattern pattern = Pattern.compile("attachment; filename=\"(.*)\"");
+        Matcher m = pattern.matcher(contentDisposition);
+        if (!m.matches()) throw new Exception("Brak nazwy pliku w nagłówku");
+        return m.group(1);
+    }
+
     public String getValue(String key) {
         if (!values.containsKey(key)) return "";
         return values.get(key);
@@ -60,4 +70,6 @@ public abstract class HttpHeader {
     public String getVersion() {
         return version;
     }
+
+
 }

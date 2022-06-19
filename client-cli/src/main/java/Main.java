@@ -1,6 +1,10 @@
 import communication.FileReceiverService;
 import communication.FileSenderService;
+import fileinfo.FileinfoService;
+import fileinfo.IFileinfoService;
 import picocli.CommandLine;
+import sockets.ClientSocketService;
+import sockets.IClientSocketService;
 
 
 public class Main {
@@ -19,7 +23,9 @@ public class Main {
 
             }
             else if (configuration.isReceiveFile()) {
-                new FileReceiverService().receiveFile();
+                IClientSocketService clientSocketService = new ClientSocketService(configuration.getHost(), configuration.getPort());
+                IFileinfoService fileinfoService = new FileinfoService();
+                var result = new FileReceiverService(clientSocketService, fileinfoService).receiveFile(configuration.receiveUrl);
             }
 
         }

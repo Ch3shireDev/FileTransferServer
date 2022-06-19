@@ -13,9 +13,13 @@ public class MockTicketService implements ITicketService {
 
     public List<Ticket> tickets = new ArrayList<>();
     Integer counter = 0;
-    private byte[] bytes;
+    private byte[] bytes = new byte[0];
 
     public MockTicketService() {
+    }
+
+    public MockTicketService(byte[] bytes){
+        this.bytes = bytes;
     }
 
     public MockTicketService(Collection<Ticket> tickets) {

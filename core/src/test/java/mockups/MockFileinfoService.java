@@ -1,17 +1,18 @@
 package mockups;
 
-import fileinfo.IFileinfoService;
 import fileinfo.Fileinfo;
+import fileinfo.IFileinfoService;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MockFileinfoService implements IFileinfoService {
 
-    private final String filename;
     private final byte[] filebytes;
+    public Map<String, byte[]> files = new HashMap<>();
 
-    public MockFileinfoService(String filename, byte[] filebytes) {
-        this.filename = filename;
+    public MockFileinfoService(byte[] filebytes) {
         this.filebytes = filebytes;
     }
 
@@ -24,5 +25,10 @@ public class MockFileinfoService implements IFileinfoService {
     @Override
     public byte[] getFilebytes(String filename) {
         return filebytes;
+    }
+
+    @Override
+    public void writeFile(String filename, byte[] filebytes) throws IOException {
+        files.put(filename, filebytes);
     }
 }

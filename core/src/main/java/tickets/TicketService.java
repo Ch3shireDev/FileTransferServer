@@ -4,6 +4,7 @@ import fileinfo.Fileinfo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class TicketService implements ITicketService {
 
@@ -26,7 +27,7 @@ public class TicketService implements ITicketService {
         TicketWrapper ticketWrapper = tickets.get(url);
         var bytes = ticketWrapper.bytes;
         if (bytes == null) return new byte[0];
-        ticketWrapper.bytes = new byte[0];
+        //ticketWrapper.bytes = new byte[0];
         return bytes;
     }
 
@@ -37,7 +38,8 @@ public class TicketService implements ITicketService {
     }
 
     @Override
-    public Ticket getTicket(String url) {
+    public Ticket getTicket(String url) throws NoSuchElementException {
+        if (!this.tickets.containsKey(url)) return null;
         return this.tickets.get(url).getTicket();
     }
 

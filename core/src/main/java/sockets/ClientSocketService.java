@@ -34,13 +34,18 @@ public class ClientSocketService extends SocketServiceBase implements IClientSoc
     }
 
     @Override
-    public void receiveResponseBody(byte[] bytes) throws IOException {
-        dataInputStream.read(bytes);
+    public void receiveResponseBody(byte[] buffer) throws IOException {
+        int totalLength = buffer.length;
+        int readBytes = 0;
+        while (readBytes < totalLength) {
+            readBytes += dataInputStream.read(buffer, readBytes, totalLength - readBytes);
+            System.out.printf("Odczyt. %d z %d\n", readBytes, totalLength);
+        }
+        System.out.printf("Odczyt zakończony.\n");
     }
 
     @Override
     public void close() throws IOException {
-
         dataOutputStream.close();
         dataInputStream.close();
     }

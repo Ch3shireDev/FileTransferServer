@@ -4,8 +4,6 @@ import models.HttpHeader;
 import models.HttpRequestHeader;
 import models.HttpResponseHeader;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,26 +19,6 @@ public class HttpHeaderConverter {
         var firstLine = String.format("%s %d %s\r\n", header.getVersion(), header.getCode(), header.getMessage());
         return getHeaderLines(firstLine, header);
     }
-
-    static Collection<String> getHeaderLines(String firstLine, HttpHeader header) {
-        List<String> lines = new ArrayList<>();
-        lines.add(firstLine);
-        lines.addAll(getHeaderDictionaryLines(header));
-        lines.add("\r\n");
-        return lines;
-    }
-
-    static Collection<String> getHeaderDictionaryLines(HttpHeader header) {
-
-        List<String> lines = new ArrayList<>();
-        for (var key : header.getKeys()) {
-            var value = header.getValue(key);
-            lines.add(String.format("%s: %s\r\n", key, value));
-        }
-
-        return lines;
-    }
-
 
     public static HttpRequestHeader getRequestHeader(Collection<String> lines) {
         String firstLine = lines.stream().findFirst().get();
@@ -64,9 +42,7 @@ public class HttpHeaderConverter {
     }
 
     public static HttpResponseHeader getResponseHeader(Collection<String> lines) {
-
         String line = lines.stream().findFirst().get();
-
         String[] parts = line.split("\\s");
 
         String version = parts[0];
@@ -88,13 +64,22 @@ public class HttpHeaderConverter {
         return new HttpResponseHeader(version, code, message, values);
     }
 
-    public static Collection<String> getHeaderLines(DataInputStream dataInputStream) throws IOException {
+    static Collection<String> getHeaderLines(String firstLine, HttpHeader header) {
         List<String> lines = new ArrayList<>();
-        String line;
-        while ((line = dataInputStream.readLine()) != null) {
-            if (line.isBlank()) break;
-            lines.add(line);
+        lines.add(firstLine);
+        lines.addAll(getHeaderDictionaryLines(header));
+        lines.add("\r\n");
+        return lines;
+    }
+
+    static Collection<String> getHeaderDictionaryLines(HttpHeader header) {
+
+        List<String> lines = new ArrayList<>();
+        for (var key : header.getKeys()) {
+            var value = header.getValue(key);
+            lines.add(String.format("%s: %s\r\n", key, value));
         }
+
         return lines;
     }
 

@@ -3,14 +3,16 @@ import fileinfo.Fileinfo;
 import helpers.JsonConverterHelpers;
 import mockups.MockSocketService;
 import mockups.MockTicketService;
-import models.*;
+import models.HttpRequest;
+import models.HttpRequestHeader;
+import models.HttpResponseHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tickets.Ticket;
 
 import java.io.IOException;
 
-class HttpServerTest {
+class ServerTests {
 
     private HttpServerService server;
     private MockSocketService serverSocket;

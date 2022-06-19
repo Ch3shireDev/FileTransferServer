@@ -1,12 +1,12 @@
 package communication;
 
-import helpers.JsonConverterHelpers;
 import fileinfo.Fileinfo;
+import helpers.JsonConverterHelpers;
 import models.HttpRequestHeader;
 import models.HttpResponse;
-import tickets.Ticket;
 import sockets.IServerSocketService;
 import tickets.ITicketService;
+import tickets.Ticket;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -63,10 +63,11 @@ public class HttpServerService {
     private HttpResponse receiveData(HttpRequestHeader header) throws IOException {
         var url = header.getPath();
         Ticket ticket = ticketService.getTicket(url);
+        if (ticket == null) return new HttpResponse(404, "Not found");
         byte[] body = ticketService.getDataFromTicket(url);
         var response = new HttpResponse(200, "OK", body);
         var filename = ticket.getFilename();
-        response.getHeader().setValue("Content-Disposition", String.format("attachment; filename=\"%s\"\r\n", filename));
+        response.getHeader().setValue("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
         return response;
     }
 

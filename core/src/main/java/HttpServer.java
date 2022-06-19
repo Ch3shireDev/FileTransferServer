@@ -37,7 +37,8 @@ public class HttpServer {
     HttpRequestHeader getHttpHeader() throws IOException {
         List<String> lines = new ArrayList<>();
         String line;
-        while (!(line = serverSocket.readLine()).isBlank()) {
+        while ((line = serverSocket.readLine()) != null) {
+            if (line.isBlank()) break;
             lines.add(line);
         }
         return HttpHeaderConverter.getHttpHeader(lines);
@@ -46,16 +47,23 @@ public class HttpServer {
     private void sendResponse(HttpRequestHeader header) throws IOException {
         try {
             if (header.getMethod().equals("POST") && header.getPath().equals("/tickets")) {
+                System.out.println("Ticket request.");
                 ticketRequest(header);
             }
             else if (header.getMethod().equals("POST") && header.getPath().matches("/tickets/[\\w\\d]+")) {
+                System.out.println("Send data.");
                 sendData(header);
             }
             else if (header.getMethod().equals("GET") && header.getPath().matches("/tickets/[\\w\\d]+")) {
+                System.out.println("Receive data.");
                 receiveData(header);
+            }
+            else {
+                System.out.println(String.format("Niezrozumiale polecenie: %s , %s", header.getMethod(), header.getPath()));
             }
         }
         catch (Exception e) {
+            System.err.println(e.getMessage());
             sendResponse(500, "Internal server error");
         }
     }
@@ -75,9 +83,8 @@ public class HttpServer {
         Fileinfo fileinfo = JsonConverterHelpers.getFileinfoFromJson(buffer);
         Ticket ticketHttpResponse = ticketService.createTicketResponse(fileinfo);
         String json = JsonConverterHelpers.getTicketAsJson(ticketHttpResponse);
-
+        System.out.println(String.format("Wysyłanie ticketa: %s", json));
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
-
         sendResponse(201, "Created", body);
     }
 

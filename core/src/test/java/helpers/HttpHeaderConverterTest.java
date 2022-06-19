@@ -4,7 +4,6 @@ import models.HttpRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-
 class HttpHeaderConverterTest {
 
     @Test

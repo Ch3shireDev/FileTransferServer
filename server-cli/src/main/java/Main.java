@@ -11,6 +11,8 @@ public class Main {
         SocketService socketService = new SocketService(port);
         TicketService ticketService = new TicketService();
         HttpServer server = new HttpServer(socketService, ticketService);
+
+        System.out.println("Serwer rozpoczął działanie.");
         while (true) {
             try {
                 server.run();

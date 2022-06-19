@@ -78,7 +78,7 @@ public class MockSocketService implements ISocketService {
     @Override
     public void sendResponseHeader(HttpResponseHeader header) throws IOException {
         var lines = HttpHeaderConverter.toResponseHeaderLines(header);
-        for(var line:lines){
+        for (var line : lines) {
             writeLine(line);
         }
     }
@@ -87,7 +87,8 @@ public class MockSocketService implements ISocketService {
     public HttpResponseHeader receiveResponseHeader() {
         List<String> headerLines = new ArrayList<>();
         String line;
-        while(!(line = receiveHeaderLine()).isBlank()){
+        while ((line = receiveHeaderLine()) != null) {
+            if (line.isBlank()) break;
             headerLines.add(line);
         }
 

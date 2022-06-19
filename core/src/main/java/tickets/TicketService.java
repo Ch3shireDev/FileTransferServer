@@ -16,7 +16,7 @@ public class TicketService implements ITicketService {
         int ticketCount = getNewTicketNumber();
         String url = String.format("/tickets/%d", ticketCount);
         String filename = fileinfo.getFilename();
-        Integer filesize = fileinfo.getFilesize();
+        long filesize = fileinfo.getFilesize();
         var ticket = new Ticket(url, filename, filesize);
         tickets.put(url, new TicketWrapper(ticket));
         return ticket;

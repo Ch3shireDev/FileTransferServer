@@ -2,13 +2,13 @@ package models;
 
 public class Ticket {
     private String filename;
-    private Integer filesize;
+    private long filesize;
     private String url;
 
     public Ticket() {
     }
 
-    public Ticket(String url, String filename, Integer filesize) {
+    public Ticket(String url, String filename, long filesize) {
         this.filename = filename;
         this.filesize = filesize;
         this.url = url;
@@ -32,7 +32,7 @@ public class Ticket {
         this.filename = filename;
     }
 
-    public Integer getFilesize() {
+    public long getFilesize() {
         return filesize;
     }
 

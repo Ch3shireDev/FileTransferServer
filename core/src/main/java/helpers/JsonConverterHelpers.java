@@ -23,6 +23,11 @@ public class JsonConverterHelpers {
         return mapper.readValue(ticket, Ticket.class);
     }
 
+    public static Ticket getJsonAsTicket(byte[] bytes) throws JsonProcessingException {
+        String ticketJson = new String(bytes);
+        return getJsonAsTicket(ticketJson);
+    }
+
     public static Fileinfo getFileinfoFromJson(byte[] buffer) throws IOException {
         return mapper.readValue(buffer, Fileinfo.class);
     }

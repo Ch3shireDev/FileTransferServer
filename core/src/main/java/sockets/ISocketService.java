@@ -1,7 +1,6 @@
 package sockets;
 
 import models.HttpRequestHeader;
-import models.HttpResponse;
 import models.HttpResponseHeader;
 
 import java.io.IOException;
@@ -20,6 +19,7 @@ public interface ISocketService {
     public void close() throws IOException;
 
     void sendRequestHeader(HttpRequestHeader header) throws IOException;
+
     void sendResponseHeader(HttpResponseHeader header) throws IOException;
 
     HttpResponseHeader receiveResponseHeader();

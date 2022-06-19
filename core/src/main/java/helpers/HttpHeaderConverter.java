@@ -4,6 +4,8 @@ import models.HttpHeader;
 import models.HttpRequestHeader;
 import models.HttpResponseHeader;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,7 +78,7 @@ public class HttpHeaderConverter {
 
         for (String line2 : lines.stream().skip(1).toArray(String[]::new)) {
             if (line2.isBlank()) break;
-            Matcher result = pattern.matcher(line);
+            Matcher result = pattern.matcher(line2);
             if (!result.find()) break;
             var key = result.group(1);
             var value = result.group(2);
@@ -86,4 +88,13 @@ public class HttpHeaderConverter {
         return new HttpResponseHeader(version, code, message, values);
     }
 
+    public static Collection<String> getHeaderLines(DataInputStream dataInputStream) throws IOException {
+        List<String> lines = new ArrayList<>();
+        String line;
+        while ((line = dataInputStream.readLine()) != null) {
+            if (line.isBlank()) break;
+            lines.add(line);
+        }
+        return lines;
+    }
 }

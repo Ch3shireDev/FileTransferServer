@@ -8,7 +8,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class SocketService implements ISocketService {
 
@@ -31,7 +30,9 @@ public class SocketService implements ISocketService {
 
     @Override
     public String readLine() throws IOException {
-        return dataInputStream.readLine();
+        String line = dataInputStream.readLine();
+        System.out.println(String.format("Read line: %s", line));
+        return line;
     }
 
     @Override
@@ -41,6 +42,7 @@ public class SocketService implements ISocketService {
 
     @Override
     public void writeLine(String line) throws IOException {
+        System.out.println(String.format("Write line: %s", line));
         dataOutputStream.write(line.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -58,7 +60,7 @@ public class SocketService implements ISocketService {
     @Override
     public void sendRequestHeader(HttpRequestHeader request) throws IOException {
         var lines = HttpHeaderConverter.toRequestHeaderLines(request);
-        for (String line:lines){
+        for (String line : lines) {
             writeLine(line);
         }
     }

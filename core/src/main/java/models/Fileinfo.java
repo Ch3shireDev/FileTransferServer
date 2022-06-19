@@ -2,12 +2,12 @@ package models;
 
 public class Fileinfo {
     private String filename;
-    private Integer filesize;
+    private long filesize;
 
     public Fileinfo() {
     }
 
-    public Fileinfo(String filename, Integer filesize) {
+    public Fileinfo(String filename, long filesize) {
         this.filename = filename;
         this.filesize = filesize;
     }
@@ -20,7 +20,7 @@ public class Fileinfo {
         this.filename = filename;
     }
 
-    public Integer getFilesize() {
+    public long getFilesize() {
         return filesize;
     }
 

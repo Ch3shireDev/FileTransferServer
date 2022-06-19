@@ -3,14 +3,14 @@ import picocli.CommandLine.Option;
 
 @Command(name = "FileTransferClient", version = "1.0")
 public class Configuration {
-    @Option(names = {"--host"}, description = "Adres hosta")
-    String host = "http://localhost";
-    @Option(names = {"-p", "--port"}, description = "Port")
+    @Option(names = {"--host"}, description = "Adres hosta.")
+    String host = "localhost";
+    @Option(names = {"--port"}, description = "Port.")
     int port = 80;
-    @Option(names = "--send", description = "Wyślij plik. Wymagana ścieżka do pliku.")
-    String fileToSend;
-    @Option(names = "--receive", description = "Odbierz plik. Wymagany adres pliku.")
-    String receiveUrl;
+    @Option(names = "--send", description = "Tryb wysylania pliku. Wymagana sciezka do pliku.")
+    String fileToSend = "";
+    @Option(names = "--receive", description = "Tryb odbierania pliku. Wymagany adres pliku.")
+    String receiveUrl = "";
 
     public String getReceiveUrl() {
         return receiveUrl;
@@ -44,4 +44,11 @@ public class Configuration {
         this.fileToSend = fileToSend;
     }
 
+    public boolean isSendFile() {
+        return !fileToSend.isBlank() && receiveUrl.isBlank();
+    }
+
+    public boolean isReceiveFile() {
+        return fileToSend.isBlank() && !receiveUrl.isBlank();
+    }
 }

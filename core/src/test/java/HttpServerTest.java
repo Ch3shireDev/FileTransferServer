@@ -1,23 +1,28 @@
+import communication.HttpServerService;
+import fileinfo.Fileinfo;
 import helpers.JsonConverterHelpers;
 import mockups.MockSocketService;
 import mockups.MockTicketService;
 import models.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import tickets.Ticket;
 
 import java.io.IOException;
 
 class HttpServerTest {
 
-    HttpServer server;
-    MockSocketService serverSocket;
-    MockTicketService ticketService;
+    private HttpServerService server;
+    private MockSocketService serverSocket;
+    private MockTicketService ticketService;
+    private MockSocketService clientSocket;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         serverSocket = new MockSocketService();
+        clientSocket = new MockSocketService();
         ticketService = new MockTicketService();
-        server = new HttpServer(serverSocket, ticketService);
+        server = new HttpServerService(serverSocket, ticketService);
     }
 
     @org.junit.jupiter.api.AfterEach

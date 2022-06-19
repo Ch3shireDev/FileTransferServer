@@ -2,8 +2,8 @@ package helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.Fileinfo;
-import models.Ticket;
+import fileinfo.Fileinfo;
+import tickets.Ticket;
 
 import java.io.IOException;
 

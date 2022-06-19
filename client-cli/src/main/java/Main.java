@@ -1,3 +1,5 @@
+import communication.FileReceiverService;
+import communication.FileSenderService;
 import picocli.CommandLine;
 
 
@@ -17,7 +19,7 @@ public class Main {
 
             }
             else if (configuration.isReceiveFile()) {
-                new FileReceiverService().receiveFile(configuration);
+                new FileReceiverService().receiveFile();
             }
 
         }

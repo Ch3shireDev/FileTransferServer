@@ -11,6 +11,7 @@ public class HttpResponse {
 
     public HttpResponse(int code, String message, byte[] body) {
         this.header = new HttpResponseHeader(code, message);
+        this.header.values.put("Content-Length", String.valueOf(body.length));
         this.body = body;
     }
 
@@ -18,6 +19,7 @@ public class HttpResponse {
         this.header = responseHeader;
         this.body = body;
     }
+
     public HttpResponse(HttpResponseHeader responseHeader) {
         this.header = responseHeader;
         this.body = new byte[0];

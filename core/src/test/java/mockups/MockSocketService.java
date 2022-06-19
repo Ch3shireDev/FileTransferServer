@@ -1,9 +1,11 @@
 package mockups;
 
+import communication.HttpServerService;
 import helpers.HttpHeaderConverter;
 import models.HttpRequestHeader;
 import models.HttpResponseHeader;
-import sockets.ISocketService;
+import sockets.IClientSocketService;
+import sockets.IServerSocketService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,52 +13,53 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MockSocketService implements ISocketService {
+public class MockSocketService implements IClientSocketService, IServerSocketService {
 
     LinkedList<String> requestHeaderLines = new LinkedList<>();
     LinkedList<String> responseHeaderLines = new LinkedList<>();
-
-    LinkedList<Byte> requestBodyBytes = new LinkedList<Byte>();
-    LinkedList<Byte> responseBodyBytes = new LinkedList<Byte>();
+    LinkedList<Byte> requestBodyBytes = new LinkedList<>();
+    LinkedList<Byte> responseBodyBytes = new LinkedList<>();
+    private HttpServerService serverService;
 
     public MockSocketService() {
     }
 
-    public void sendHeaderLine(String line) {
-        requestHeaderLines.add(line);
-    }
-
-    @Override
-    public void writeLine(String line) throws IOException {
-        responseHeaderLines.add(line);
-    }
-
 
     private String receiveHeaderLine() {
-        return responseHeaderLines.pop();
-    }
-
-    @Override
-    public void accept() throws IOException {
-
-    }
-
-    @Override
-    public String readLine() throws IOException {
         return requestHeaderLines.pop();
     }
 
     @Override
-    public void readBytes(byte[] buffer) throws IOException {
-        for (var i = 0; i < buffer.length; i++) {
-            buffer[i] = requestBodyBytes.pop();
+    public void open() throws IOException {
+
+    }
+
+
+    @Override
+    public void sendRequestBody(byte[] bytes) throws IOException {
+        for (var i = 0; i < bytes.length; i++) {
+            requestBodyBytes.add(bytes[i]);
         }
     }
 
     @Override
-    public void writeBytes(byte[] bytes) throws IOException {
+    public void receiveResponseBody(byte[] buffer) throws IOException {
+        for (var i = 0; i < buffer.length; i++) {
+            buffer[i] = responseBodyBytes.pop();
+        }
+    }
+
+    @Override
+    public void sendResponseBody(byte[] bytes) throws IOException {
         for (var i = 0; i < bytes.length; i++) {
             responseBodyBytes.add(bytes[i]);
+        }
+    }
+
+    @Override
+    public void receiveRequestBody(byte[] buffer) throws IOException {
+        for (var i = 0; i < buffer.length; i++) {
+            buffer[i] = requestBodyBytes.pop();
         }
     }
 
@@ -68,31 +71,49 @@ public class MockSocketService implements ISocketService {
     @Override
     public void sendRequestHeader(HttpRequestHeader header) {
         var lines = HttpHeaderConverter.toRequestHeaderLines(header);
-
-        for (var line : lines) {
-            sendHeaderLine(line);
-        }
-
+        requestHeaderLines.addAll(lines);
     }
 
     @Override
     public void sendResponseHeader(HttpResponseHeader header) throws IOException {
         var lines = HttpHeaderConverter.toResponseHeaderLines(header);
-        for (var line : lines) {
-            writeLine(line);
+        responseHeaderLines.addAll(lines);
+    }
+
+    @Override
+    public HttpRequestHeader receiveRequestHeader() throws IOException {
+        List<String> headerLines = new ArrayList<>();
+        String line;
+        while ((line = requestHeaderLines.pop()) != null) {
+            if (line.isBlank()) break;
+            headerLines.add(line);
         }
+
+        return HttpHeaderConverter.getRequestHeader(headerLines);
     }
 
     @Override
     public HttpResponseHeader receiveResponseHeader() {
+        runServer();
+
         List<String> headerLines = new ArrayList<>();
         String line;
-        while ((line = receiveHeaderLine()) != null) {
+        while ((line = responseHeaderLines.pop()) != null) {
             if (line.isBlank()) break;
             headerLines.add(line);
         }
 
         return HttpHeaderConverter.getResponseHeader(headerLines);
+    }
+
+    private void runServer() {
+        if (serverService == null) return;
+        try {
+            serverService.run();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     public void sendBody(String line) {
@@ -117,5 +138,9 @@ public class MockSocketService implements ISocketService {
         for (var i = 0; i < bytes.length; i++) array[i] = bytes[i];
         responseBodyBytes.clear();
         return array;
+    }
+
+    public void setServer(HttpServerService serverService) {
+        this.serverService = serverService;
     }
 }

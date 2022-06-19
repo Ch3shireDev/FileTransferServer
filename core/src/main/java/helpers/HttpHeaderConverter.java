@@ -42,7 +42,7 @@ public class HttpHeaderConverter {
     }
 
 
-    public static HttpRequestHeader getHttpHeader(List<String> lines) {
+    public static HttpRequestHeader getRequestHeader(Collection<String> lines) {
         String firstLine = lines.stream().findFirst().get();
         String[] parts = firstLine.split("\\s");
 
@@ -97,4 +97,5 @@ public class HttpHeaderConverter {
         }
         return lines;
     }
+
 }

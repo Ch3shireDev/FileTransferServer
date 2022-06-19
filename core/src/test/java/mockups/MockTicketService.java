@@ -1,7 +1,7 @@
 package mockups;
 
-import models.Fileinfo;
-import models.Ticket;
+import fileinfo.Fileinfo;
+import tickets.Ticket;
 import tickets.ITicketService;
 
 import java.util.ArrayList;

@@ -1,4 +1,6 @@
-package models;
+package tickets;
+
+import fileinfo.Fileinfo;
 
 public class Ticket {
     private String filename;

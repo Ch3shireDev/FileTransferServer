@@ -1,7 +1,6 @@
 package tickets;
 
-import models.Fileinfo;
-import models.Ticket;
+import fileinfo.Fileinfo;
 
 public interface ITicketService {
     public Ticket createTicketResponse(Fileinfo fileinfo);

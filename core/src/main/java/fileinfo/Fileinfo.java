@@ -1,4 +1,4 @@
-package models;
+package fileinfo;
 
 public class Fileinfo {
     private String filename;

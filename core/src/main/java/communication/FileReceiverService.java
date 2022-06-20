@@ -1,5 +1,6 @@
 package communication;
 
+import fileinfo.Filedata;
 import fileinfo.IFileinfoService;
 import models.HttpRequest;
 import models.HttpResponse;
@@ -18,20 +19,18 @@ public class FileReceiverService {
         this.fileinfoService = fileinfoService;
     }
 
-    public boolean receiveFile(String url) throws Exception {
+    public Filedata receiveFile(String url) throws Exception {
         HttpRequest request = new HttpRequest("GET", url);
         HttpResponse response = getResponse(request);
-        if (!isSuccess(response)) return false;
-        System.out.println("Zapisywanie pliku.");
-        saveFile(response);
-        System.out.println("Plik zapisany poprawnie.");
-        return true;
+        if (!isSuccess(response)) throw new Exception("Błąd pobierania.");
+        Filedata filedata = getFile(response);
+        return filedata;
     }
 
-    private void saveFile(HttpResponse response) throws Exception {
+    private Filedata getFile(HttpResponse response) throws Exception {
         var filename = response.getHeader().getFilename();
         var filebytes = response.getBody();
-        fileinfoService.writeFile(filename, filebytes);
+        return new Filedata(filename, filebytes);
     }
 
     private boolean isSuccess(HttpResponse response) {
@@ -51,3 +50,4 @@ public class FileReceiverService {
         return new HttpResponse(responseHeader, responseBody);
     }
 }
+

@@ -1,5 +1,6 @@
 package mockups;
 
+import fileinfo.Filedata;
 import fileinfo.Fileinfo;
 import fileinfo.IFileinfoService;
 
@@ -28,7 +29,8 @@ public class MockFileinfoService implements IFileinfoService {
     }
 
     @Override
-    public void writeFile(String filename, byte[] filebytes) throws IOException {
-        files.put(filename, filebytes);
+    public void writeFile(Filedata filedata){
+        files.put(filedata.getFilename(), filedata.getFilebytes());
     }
+
 }

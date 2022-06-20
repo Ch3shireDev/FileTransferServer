@@ -7,5 +7,5 @@ public interface IFileinfoService {
 
     byte[] getFilebytes(String filename) throws IOException;
 
-    void writeFile(String filename, byte[] filebytes) throws IOException;
+    void writeFile(Filedata filedata) throws IOException;
 }

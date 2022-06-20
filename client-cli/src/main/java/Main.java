@@ -1,5 +1,6 @@
 import communication.FileReceiverService;
 import communication.FileSenderService;
+import fileinfo.Filedata;
 import fileinfo.FileinfoService;
 import fileinfo.IFileinfoService;
 import picocli.CommandLine;
@@ -25,7 +26,12 @@ public class Main {
             else if (configuration.isReceiveFile()) {
                 IClientSocketService clientSocketService = new ClientSocketService(configuration.getHost(), configuration.getPort());
                 IFileinfoService fileinfoService = new FileinfoService();
-                var result = new FileReceiverService(clientSocketService, fileinfoService).receiveFile(configuration.receiveUrl);
+                Filedata filedata = new FileReceiverService(clientSocketService, fileinfoService).receiveFile(configuration.receiveUrl);
+                if (filedata == null) {
+                    throw new Exception("Brak odebranego pliku.");
+                }
+
+                fileinfoService.writeFile(filedata);
             }
 
         }

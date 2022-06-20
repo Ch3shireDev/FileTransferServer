@@ -1,8 +1,6 @@
 package fileinfo;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,8 +23,9 @@ public class FileinfoService implements IFileinfoService {
     }
 
     @Override
-    public void writeFile(String filename, byte[] filebytes) throws IOException {
-        Path filepath = getUnoccupiedPath(filename);
+    public void writeFile(Filedata filedata) throws IOException {
+        byte[] filebytes = filedata.getFilebytes();
+        Path filepath = getUnoccupiedPath(filedata.getFilename());
         System.out.printf("Zapis danych do pliku: %d B\n", filebytes.length);
         Files.write(filepath, filebytes);
         System.out.printf("Plik zapisano pod ścieżką %s\n", filepath.getFileName());

@@ -1,7 +1,6 @@
 package communication;
 
 import fileinfo.Filedata;
-import fileinfo.IFileinfoService;
 import models.HttpRequest;
 import models.HttpResponse;
 import models.HttpResponseHeader;
@@ -11,12 +10,10 @@ import java.io.IOException;
 
 public class FileReceiverService {
     private final IClientSocketService clientSocketService;
-    private final IFileinfoService fileinfoService;
 
 
-    public FileReceiverService(IClientSocketService clientSocketService, IFileinfoService fileinfoService) {
+    public FileReceiverService(IClientSocketService clientSocketService) {
         this.clientSocketService = clientSocketService;
-        this.fileinfoService = fileinfoService;
     }
 
     public Filedata receiveFile(String url) throws Exception {

@@ -9,7 +9,6 @@ import java.util.NoSuchElementException;
 public class TicketService implements ITicketService {
 
     Map<String, TicketWrapper> tickets = new HashMap<>();
-
     Integer count = 0;
 
     public Ticket createTicketResponse(Fileinfo fileinfo) {
@@ -27,7 +26,6 @@ public class TicketService implements ITicketService {
         TicketWrapper ticketWrapper = tickets.get(url);
         var bytes = ticketWrapper.bytes;
         if (bytes == null) return new byte[0];
-        //ticketWrapper.bytes = new byte[0];
         return bytes;
     }
 

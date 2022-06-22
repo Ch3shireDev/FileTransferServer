@@ -5,18 +5,15 @@ import helpers.JsonConverterHelpers;
 import models.HttpRequestHeader;
 import models.HttpResponse;
 import sockets.IServerSocketService;
+import sockets.ServerSocketService;
 import tickets.ITicketService;
 import tickets.Ticket;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
-public class HttpServerService {
-
-    Integer count = 0;
-    Map<Integer, Ticket> Tickets = new HashMap<Integer, Ticket>();
+public class HttpServerService extends Thread {
 
     IServerSocketService serverSocket;
     ITicketService ticketService;
@@ -26,13 +23,28 @@ public class HttpServerService {
         this.ticketService = ticketService;
     }
 
-    public void run() throws IOException {
-        serverSocket.open();
-        HttpRequestHeader header = serverSocket.receiveRequestHeader();
-        HttpResponse response = getResponse(header);
-        serverSocket.sendResponseHeader(response.getHeader());
-        serverSocket.sendResponseBody(response.getBody());
-        serverSocket.close();
+    public HttpServerService(Socket socket, ITicketService ticketService){
+        this.serverSocket = new ServerSocketService(socket);
+        this.ticketService = ticketService;
+    }
+
+    public void run() {
+        try {
+            serverSocket.open();
+            System.out.println("Receiving header");
+            HttpRequestHeader header = serverSocket.receiveRequestHeader();
+            System.out.printf("Creating response for %s\n", header.getPath());
+            HttpResponse response = getResponse(header);
+            System.out.printf("Sending response header for %s\n",header.getPath());
+            serverSocket.sendResponseHeader(response.getHeader());
+            System.out.printf("Sending response body for %s\n",header.getPath());
+            serverSocket.sendResponseBody(response.getBody());
+            System.out.printf("Connection end for %s\n",header.getPath());
+            serverSocket.close();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private HttpResponse getResponse(HttpRequestHeader header) throws IOException {
@@ -50,7 +62,7 @@ public class HttpServerService {
                 return receiveData(header);
             }
             else {
-                System.out.println(String.format("Niezrozumiale polecenie: %s , %s", header.getMethod(), header.getPath()));
+                System.err.printf("Niezrozumiale polecenie: %s , %s%n", header.getMethod(), header.getPath());
                 return new HttpResponse(500, "Internal server error");
             }
         }
@@ -60,7 +72,7 @@ public class HttpServerService {
         }
     }
 
-    private HttpResponse receiveData(HttpRequestHeader header) throws IOException {
+    private HttpResponse receiveData(HttpRequestHeader header) {
         var url = header.getPath();
         Ticket ticket = ticketService.getTicket(url);
         if (ticket == null) return new HttpResponse(404, "Not found");
@@ -76,19 +88,44 @@ public class HttpServerService {
         byte[] buffer = new byte[contentLength];
         serverSocket.receiveRequestBody(buffer);
         Fileinfo fileinfo = JsonConverterHelpers.getFileinfoFromJson(buffer);
-        Ticket ticketHttpResponse = ticketService.createTicketResponse(fileinfo);
+        Ticket ticketHttpResponse = getTicket(fileinfo);
         String json = JsonConverterHelpers.getTicketAsJson(ticketHttpResponse);
         System.out.printf("Wysyłanie ticketa: %s%n", json);
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
         return new HttpResponse(201, "Created", body);
     }
 
-    private HttpResponse sendData(HttpRequestHeader header) throws IOException {
+    private Ticket getTicket(Fileinfo fileinfo) {
+        Ticket ticketHttpResponse;
+
+        synchronized (ticketService) {
+            ticketHttpResponse = ticketService.createTicketResponse(fileinfo);
+        }
+        return ticketHttpResponse;
+    }
+
+    private HttpResponse sendData(HttpRequestHeader header) throws Exception {
+        System.out.printf("Send data start for %s.\n", header.getPath());
         int contentLength = header.getContentLength();
         byte[] buffer = new byte[contentLength];
+        //sleep(10, 1000, "Sending... %d "+header.getPath()+"\n");
+        System.out.printf("Receiving request body for %s.\n",header.getPath());
         serverSocket.receiveRequestBody(buffer);
-        ticketService.sendDataToTicket(header.getPath(), buffer);
+        System.out.printf("Request body received for %s.\n", header.getPath());
+        synchronized (ticketService) {
+            System.out.printf("Sending data to ticket: %s\n", header.getPath());
+            ticketService.sendDataToTicket(header.getPath(), buffer);
+            System.out.printf("Sending data to ticket %s succeeded\n", header.getPath());
+        }
+        System.out.printf("Send data end for %s\n", header.getPath());
         return new HttpResponse(200, "OK");
+    }
+
+    private void sleep(int count, int intervals, String message) throws InterruptedException {
+        for (int i = 0; i < count; i++) {
+            Thread.sleep(intervals);
+            System.out.printf(message, i);
+        }
     }
 }
 

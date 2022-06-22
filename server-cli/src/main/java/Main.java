@@ -1,28 +1,49 @@
 import communication.HttpServerService;
-import sockets.IServerSocketService;
-import sockets.ServerSocketService;
+import picocli.CommandLine;
 import tickets.TicketService;
 
-import java.io.IOException;
+import java.net.ServerSocket;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
-        int port = 80;
-        IServerSocketService socketService = new ServerSocketService(port);
+        Configuration configuration = getConfiguration(args);
+        int port = configuration.getPort();
+
+        var socket = new ServerSocket(port);
+
         TicketService ticketService = new TicketService();
-        HttpServerService server = new HttpServerService(socketService, ticketService);
 
-        System.out.println("Serwer rozpoczął działanie.");
-        while (true) {
+        System.out.printf("Serwer rozpoczął działanie. Port: %d\n", port);
+        {
             try {
-                server.run();
+                while (true) {
+                    new HttpServerService(socket.accept(), ticketService).start();
+                }
             }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
+            finally {
+                socket.close();
             }
         }
+    }
+
+
+    private static Configuration getConfiguration(String[] args) throws Exception {
+        Configuration configuration = new Configuration();
+        CommandLine commandLine = new CommandLine(configuration);
+
+        commandLine.parseArgs(args);
+        if (commandLine.isUsageHelpRequested()) {
+            commandLine.usage(System.out);
+            throw new Exception("Program zakończył działanie.");
+        }
+        else if (commandLine.isVersionHelpRequested()) {
+            commandLine.printVersionHelp(System.out);
+            throw new Exception("Program zakończył działanie.");
+        }
+
+        return configuration;
     }
 }
 

@@ -12,6 +12,7 @@
         <module>client-cli</module>
         <module>core</module>
         <module>server-cli</module>
+        <module>client-gui</module>
     </modules>
 
     <properties>

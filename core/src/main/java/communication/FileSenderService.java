@@ -30,7 +30,7 @@ public class FileSenderService {
     public boolean sendFile(String fileToSend) throws Exception {
         Fileinfo fileinfo = fileinfoService.getFileinfo(fileToSend);
         if (fileinfo.getFilesize() == 0)
-            throw new Exception("Plik ma zerową długosć. Prawdopodobnie plik nie istnieje.");
+            throw new Exception("Plik ma zerową długość. Prawdopodobnie plik nie istnieje.");
         System.out.printf("Wysyłanie pliku %s, rozmiar: %d B%n", fileinfo.getFilename(), fileinfo.getFilesize());
         Ticket ticket = requestTicket(fileinfo);
         System.out.printf("Uzyskano ticket. URL: %s%n", ticket.getUrl());

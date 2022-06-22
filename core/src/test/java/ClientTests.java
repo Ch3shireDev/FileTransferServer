@@ -35,11 +35,12 @@ class ClientTests {
     @Test
     public void fileReceiveTest() throws Exception {
         ticketService.tickets.add(new Ticket("/tickets/1", new Fileinfo("a.png", 3)));
-        FileReceiverService fileReceiverService = new FileReceiverService(socketService, fileinfoService);
+        FileReceiverService fileReceiverService = new FileReceiverService(socketService);
         HttpServerService serverService = new HttpServerService(socketService, ticketService);
         socketService.setServer(serverService);
         var result = fileReceiverService.receiveFile("/tickets/1");
-        Assertions.assertTrue(result);
+        Assertions.assertNotNull(result);
+        fileinfoService.writeFile(result);
         Assertions.assertEquals(1, fileinfoService.files.keySet().size());
         String filename = fileinfoService.files.keySet().stream().findFirst().get();
         byte[] bytes = fileinfoService.files.get(filename);

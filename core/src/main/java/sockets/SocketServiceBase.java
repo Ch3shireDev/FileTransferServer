@@ -15,7 +15,7 @@ abstract class SocketServiceBase {
 
     protected String readLine() throws IOException {
         String line = dataInputStream.readLine();
-        System.out.printf("Read line: %s\n", line);
+//        System.out.printf("Read line: %s\n", line);
         return line;
     }
 
@@ -30,7 +30,7 @@ abstract class SocketServiceBase {
     }
 
     protected void writeLine(String line) throws IOException {
-        System.out.printf("Write line: %s", line);
+//        System.out.printf("Write line: %s", line);
         dataOutputStream.write(line.getBytes(StandardCharsets.UTF_8));
     }
 

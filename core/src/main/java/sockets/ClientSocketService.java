@@ -41,7 +41,7 @@ public class ClientSocketService extends SocketServiceBase implements IClientSoc
             readBytes += dataInputStream.read(buffer, readBytes, totalLength - readBytes);
             System.out.printf("Odczyt. %d z %d\n", readBytes, totalLength);
         }
-        System.out.printf("Odczyt zakończony.\n");
+        System.out.print("Odczyt zakończony.\n");
     }
 
     @Override

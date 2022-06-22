@@ -26,7 +26,7 @@ public class Main {
             else if (configuration.isReceiveFile()) {
                 IClientSocketService clientSocketService = new ClientSocketService(configuration.getHost(), configuration.getPort());
                 IFileinfoService fileinfoService = new FileinfoService();
-                Filedata filedata = new FileReceiverService(clientSocketService, fileinfoService).receiveFile(configuration.receiveUrl);
+                Filedata filedata = new FileReceiverService(clientSocketService).receiveFile(configuration.receiveUrl);
                 if (filedata == null) {
                     throw new Exception("Brak odebranego pliku.");
                 }

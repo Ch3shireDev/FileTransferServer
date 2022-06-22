@@ -9,15 +9,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerSocketService extends SocketServiceBase implements IServerSocketService {
-    private final ServerSocket serverSocket;
+    Socket clientSocket;
+    ServerSocket serverSocket;
 
     public ServerSocketService(int port) throws IOException {
-        this.serverSocket = new ServerSocket(port);
+        serverSocket = new ServerSocket(port);
     }
+
+    public ServerSocketService(Socket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
+
 
     @Override
     public void open() throws IOException {
-        Socket clientSocket = serverSocket.accept();
         InputStream inputStream = clientSocket.getInputStream();
         this.dataInputStream = new DataInputStream(inputStream);
         OutputStream outputStream = clientSocket.getOutputStream();
@@ -35,15 +40,23 @@ public class ServerSocketService extends SocketServiceBase implements IServerSoc
     public void receiveRequestBody(byte[] buffer) throws IOException {
         int totalLength = buffer.length;
         int readBytes = 0;
-        while(readBytes < totalLength) {
-            dataInputStream.read(buffer);
+        while (readBytes < totalLength) {
+            readBytes += dataInputStream.read(buffer, readBytes, totalLength - readBytes);
         }
     }
 
     @Override
     public void close() throws IOException {
+        System.out.println("Closing streams...");
         dataOutputStream.close();
+        System.out.println("Closing streams...");
         dataInputStream.close();
+        System.out.println("Streams closed.");
+
+    }
+
+    public void end() throws IOException {
+        clientSocket.close();
     }
 
     @Override
